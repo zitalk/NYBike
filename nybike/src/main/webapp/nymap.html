@@ -1,0 +1,42 @@
+<!DOCTYPE html>  
+<html>
+<head>  
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />  
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+<title>Hello, World</title>  
+<style type="text/css">  
+html{height:100%}  
+body{height:100%;margin:0px;padding:0px}  
+#container{height:100%}  
+</style>  
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=BQuiinChlMs7g4B2H3B9tgYEXpo4OH0W">
+//v2.0版本的引用方式：src="http://api.map.baidu.com/api?v=2.0&ak=您的密钥"
+</script>
+</head>  
+ 
+<body>  
+<div id="container"></div> 
+<script type="text/javascript"> 
+var map = new BMap.Map("container");//创建百度地图实例，绑定地图容器的id
+var point = new BMap.Point(-73.985685, 40.748424);
+map.centerAndZoom(point, 15);// 初始化地图，设置中心点坐标和地图级别  //创建坐标点实例，设定该坐标经纬度(经度，维度)
+map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+
+var navControl = new BMap.NavigationControl({
+      anchor:BMAP_ANCHOR_BOTTOM_RIGHT ,//显示在右下角
+      offset: new BMap.Size(10, 10),//偏移量
+      //type:BMAP_NAVIGATION_CONTROL_LARGE//显示完整的平移缩放空间
+  });
+map.addControl(navControl);
+
+var marker = new BMap.Marker(point);        // 创建标注    
+map.addOverlay(marker);
+
+var point2 = new BMap.Point(-73.986192, 40.748119);
+var marker2 = new BMap.Marker(point2);
+map.addOverlay(marker2);
+
+map.setCurrentCity("纽约");
+</script>  
+</body>  
+</html>
