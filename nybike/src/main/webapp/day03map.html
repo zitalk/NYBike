@@ -68,11 +68,11 @@ body {
 			var opts = { //icon配置参数
 				/*图标的定位锚点。此点用来决定图标与地理位置的关系，
 				  是相对于图标左上角的偏移值，默认等于图标宽度和高度的中间值*/
-				anchor : new BMap.Size(23, 50),
+				anchor : new BMap.Size(15, 30),
 				//设置图片大小
-				imageSize : new BMap.Size(46, 50)
+				imageSize : new BMap.Size(30, 30)
 			}
-			var myIcon = new BMap.Icon("./img/bi_0.png", new BMap.Size(46, 50), opts); //icon类的带参构造，创建一个实例
+			var myIcon = new BMap.Icon("https://img.99couple.top/20200527190716.png", new BMap.Size(30, 30), opts); //icon类的带参构造，创建一个实例
 			// 创建标注对象并添加到地图   
 			var marker = new BMap.Marker(point, {
 				icon : myIcon
