@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <!-- 引入 echarts.js -->
+    <script src="js/echarts.min.js"></script>
+    <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 900px;height:400px;"></div>
+    <script type="text/javascript">
+    
+        //声明服务器数据的url
+        var url = "http://localhost:8080/nybike/tripDayCount";
+        //发送AJAX请求，获取数据
+        $.get(url,function(result){
+        	// x轴数据 日期
+        	var xData=result.xData;
+        	// y轴数据   骑行总数
+        	var yData=result.yData;
+        	
+            var myChart = echarts.init(document.getElementById('main'));
+
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '19年4月每日骑行总数'
+                },
+                tooltip: {},
+                legend: {
+                    data:['骑行总数']
+                },
+                xAxis: {
+                    data: xData
+                },
+                yAxis: {},
+                series: [{
+                    name: '骑行总数',
+                    type: 'bar',
+                    data: yData
+                }]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        });
+    	
+    </script>
+</body>
+</html>

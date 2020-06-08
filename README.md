@@ -35,3 +35,6 @@
 - 关系型数据库：MySQL 
 - 大数据平台：Hadoop，HBase，Hive 
 
+## JAR包
+
+全部使用Maven依赖，在pom.xml查看依赖配置

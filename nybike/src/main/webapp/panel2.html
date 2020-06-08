@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>实时数据可视化</title>
+<style type="text/css">
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+}
+
+div {
+	border: 1px solid black;
+}
+
+.part1 {
+	height: 15%;
+	
+	background-color: yellow;
+	text-align: center;
+	
+}
+
+.part2 {
+	height: 80%;
+}
+
+.part2_left {
+	display: inline-block;
+	width: 59%;
+	height: 100%;
+	background-color: orange;
+}
+
+.part2_right {
+	display: inline-block;
+	width: 40%;
+	height: 100%;
+}
+
+.part1 span {
+	font-size: 30px;
+	border: 1px solid black;
+	
+}
+#dateId {
+background-color: blue;
+}
+#countId {
+background-color: green;
+}
+#btn_refresh {
+background-color: gray;
+}
+.menu {
+    
+    
+    position:relative;
+    padding-bottom:10px;
+    text-align:center;
+}
+</style>
+</head>
+<body>
+	<!-- 数据时间等信息 -->
+	<div class="part1">
+		<!-- 数据时间 -->
+		<span id="dateId" class="menu"></span>
+		<!-- 站点总数 -->
+		<span id="countId" class="menu"></span>
+		<!-- 刷新按钮 -->
+		<span class="menu"><button id="btn_refresh">刷新</button></span>
+	</div>
+	<!-- 页面下半部分 -->
+	<div class="part2">
+		<!-- 不同类型站点的数量-柱状图 -->
+		<div class="part2_left" id="left_container"></div>
+		<!-- 不同类型站点的占比-饼状图 -->
+		<div class="part2_right" id="right_container"></div>
+	</div>
+</body>
+<script type="text/javascript" src="js/echarts.min.js"></script>
+<script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="js/panel2.js"></script>
+<script type="text/javascript">
+    var statusUrl = "https://gbfs.citibikenyc.com/gbfs/en/station_status.json";
+	var xData = [ "无车", "<=4辆", "<=50%", ">50%", "满车" ];
+	var leftChart;//左侧图表对象
+	var rightChart;//右侧图表对象
+	//初始化页面内容
+	init();
+	//为刷新按钮添加点击事件，在这个API中仅需要传入方法名
+	$("#btn_refresh").click(updateData);	
+
+</script>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ECharts</title>
+<!-- 引入 echarts.js -->
+<script src="../js/echarts.min.js"></script>
+<style type="text/css">
+div {
+	width: 800px;
+	height: 600px;
+}
+</style>
+</head>
+<body>
+	<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+	<div id="main"></div>
+	<script type="text/javascript">
+		var myChart = echarts.init(document.getElementById('main'));
+		
+
+		var xData=["4-1","4-2","4-3","4-4","4-5","4-6","4-7","4-8","4-9","4-10","4-11","4-12","4-13","4-14","4-15","4-16","4-17","4-18","4-19","4-20","4-21","4-22","4-23","4-24","4-25","4-26","4-27","4-28","4-29","4-30"];
+		
+		setTimeout(function() {
+
+			option = {
+				legend : {},
+				tooltip : {
+					trigger : 'axis',
+					showContent : false
+				},
+				dataset : {
+					source : [
+							[ 'product', '1', '2', '3', '4', '5', '6', '7',
+									'8', '9', '10', '11', '12' ],
+							[ '餐 饮 美 食', 1410.10, 1692.00, 19125.80, 2347.60,
+									500.19, 1378.05, 114.90, 613.39, 1897.34,
+									359.47, 316.51, 1002.00 ],
+							[ '服 饰 美 容', 373.80, 652.72, 539.59, 331.65, 54.90,
+									16.30, 257.16, 364.58, 1397.00, 60.00,
+									430.87, 369.00 ],
+							[ '生 活 日 用', 310.58, 315.55, 2708.31, 500.24,
+									719.10, 620.50, 494.10, 559.79, 1317.75,
+									340.05, 370.34, 174.60, ],
+							[ '其 他 支 出', 726.26, 607.1, 6009.2, 720.4, 593.9,
+									390.10, 489.46, 984.21, 420.26, 1500.95,
+									480.48, 752.56 ] ]
+				},
+				xAxis : {
+					type : 'category'
+				},
+				yAxis : {
+					gridIndex : 0
+				},
+				grid : {
+					top : '55%'
+				},
+				series : [ {
+					type : 'line',
+					smooth : true,
+					seriesLayoutBy : 'row'
+				}, {
+					type : 'line',
+					smooth : true,
+					seriesLayoutBy : 'row'
+				}, {
+					type : 'line',
+					smooth : true,
+					seriesLayoutBy : 'row'
+				}, {
+					type : 'line',
+					smooth : true,
+					seriesLayoutBy : 'row'
+				}, {
+					type : 'pie',
+					id : 'pie',
+					radius : '30%',
+					center : [ '50%', '25%' ],
+					label : {
+						formatter : '{b}: {@1} ({d}%)'
+					},
+					encode : {
+						itemName : 'product',
+						value : '1',
+						tooltip : '1'
+					}
+				} ]
+			};
+
+			myChart.on('updateAxisPointer', function(event) {
+				var xAxisInfo = event.axesInfo[0];
+				if (xAxisInfo) {
+					var dimension = xAxisInfo.value + 1;
+					myChart.setOption({
+						series : {
+							id : 'pie',
+							label : {
+								formatter : '{b}: {@[' + dimension
+										+ ']} ({d}%)'
+							},
+							encode : {
+								value : dimension,
+								tooltip : dimension
+							}
+						}
+					});
+				}
+			});
+
+			myChart.setOption(option);
+
+		});
+	</script>
+</body>
+</html>

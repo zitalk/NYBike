@@ -50,11 +50,25 @@
 # 2019年4月每一天的总骑行量可视化
 
 1. 需求分析：以图表的形式，显示2019年4月每一天的总骑行数量。
+
 2. 思路分析：
+   
    - ![](https://img.99couple.top/20200602152659.png)
+   
 3. 建库建表，保存原始数据
    - 在nybike项目中，在`src/main/java`下创建`cn.tedu.nybike.util`包，并在该包下创建`nybike.sql`。该文件仅用于保存这个项目涉及到的所有的SQL语句。
    - 该文件仅用于保存项目会所涉及到的SQL语句
+   
+4. 将表导入数据库中
+
+   - ```mysql
+     -- 将csv数据导入数据库表
+     load data infile 'D:/201904-citibike-tripdata.csv' -- 文件的绝对路径
+     into table tb_trip_1904 -- 表名
+     fields terminated by ',' -- 原始文件中的分隔符
+     optionally enclosed by '"' -- 去掉原始数据前后的双引号
+     ignore 1 lines; -- 导入时忽略第一行-表头行
+     ```
 
 # 基础知识：
 

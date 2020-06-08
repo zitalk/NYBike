@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>实时数据可视化</title>
+<style type="text/css">
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+}
+
+div {
+	border: 1px solid black;
+}
+
+.part1 {
+	height: 15%;
+	
+	background-color: yellow;
+	text-align: center;
+	
+}
+
+.part2 {
+	height: 80%;
+}
+
+.part2_left {
+	display: inline-block;
+	width: 59%;
+	height: 100%;
+	background-color: orange;
+}
+
+.part2_right {
+	display: inline-block;
+	width: 40%;
+	height: 100%;
+}
+
+.part1 span {
+	font-size: 30px;
+	border: 1px solid black;
+	
+}
+#dateId {
+background-color: blue;
+}
+#countId {
+background-color: green;
+}
+#btn_refresh {
+background-color: gray;
+}
+.menu {
+    
+    
+    position:relative;
+    padding-bottom:10px;
+    text-align:center;
+}
+</style>
+</head>
+<body>
+	<!-- 数据时间等信息 -->
+	<div class="part1">
+		<!-- 数据时间 -->
+		<span id="dateId" class="menu"></span>
+		<!-- 站点总数 -->
+		<span id="countId" class="menu"></span>
+		<!-- 刷新按钮 -->
+		<span class="menu"><button id="btn_refresh">刷新</button></span>
+	</div>
+	<!-- 页面下半部分 -->
+	<div class="part2">
+		<!-- 不同类型站点的数量-柱状图 -->
+		<div class="part2_left" id="left_container"></div>
+		<!-- 不同类型站点的占比-饼状图 -->
+		<div class="part2_right" id="right_container"></div>
+	</div>
+</body>
+<script type="text/javascript" src="js/echarts.min.js"></script>
+<script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript">
+	var xData = [ "无车", "<=4辆", "<=50%", ">50%", "满车" ];
+	var yData = [ 0, 0, 0, 0, 0 ];
+	var pieData = [];
+	var leftChart;
+	var rightChart;
+	$("#btn_refresh").click(updateData);
+
+	//发送AJAX请求，获取站点状态数据
+	var statusUrl = "https://gbfs.citibikenyc.com/gbfs/en/station_status.json";
+	$.get(statusUrl, function(statusData) {
+		console.log(statusData);
+		//获取时间戳 并转换为13位的时间戳
+		var timeStamp = statusData.last_updated * 1000;
+		//将时间戳转变为当前时区的字符串表示
+		var date = timeStampToDate(timeStamp);
+
+		//显示在页面上
+		//通过jQuery选中页面上负责显示时间的span
+		//.text(str)是将标签间的内容进行替换的方法
+		$("#dateId").text("数据时间：" + date);
+
+		//获取station数组长度
+		var count = statusData.data.stations.length;
+		//将长度作为站点数量，显示在页面上
+		$("#countId").text("站点总数：" + count);
+		//声明5个局部变量，分别表示5种类型站点对应的量
+		var yData_1 = 0;//无车的站点
+		var yData_2 = 0;//可用车小于等于4的站点
+		var yData_3 = 0;//可用车小于50%的站点
+		var yData_4 = 0;//可用车大于50%的站点
+		var yData_5 = 0;//没有可用桩，只有车的站点
+		//遍历stations数组
+		var statusStation = statusData.data.stations;
+		for ( var index in statusStation) {
+			//获取当前元素-->一个站点数据
+			var statu = statusStation[index];
+			//获取nba
+			var nba = statu.num_bikes_available;
+			//获取nda
+			var nda = statu.num_docks_available;
+			//console.log("nba:"+nba+" nda:"+nda);
+			//进行判断该对yData的哪个数据进行+1
+			var abi = nba / (nba + nda);
+			if (nba + nda == 0 || nba == 0) {
+				yData_1++;
+				//这里没有return所以需要用else if 否则会执行完一个if又进下一个if
+				//也可以五个if里面写break
+			} else if (nba < 5) {
+				yData_2++;
+			} else if (abi <= 0.5) {
+				yData_3++;
+			} else if (abi < 1) {
+				yData_4++;
+			} else if (nda == 0) {
+				yData_5++;
+			}
+		}
+		//将5个局部变量添加到yData中
+		yData = [ yData_1, yData_2, yData_3, yData_4, yData_5 ];
+		console.log(yData);
+		//基于xData和yData生成pieData中的内容
+		/*var yData=[100,150,200,300,217];
+		var pieData=[
+		{value: 100, name: '无车'},
+		{value: 150, name: '<=4辆'},
+		{value: 200, name: '<=50%'},
+		{value: 300, name: '>50%'},
+		{value: 217, name: '满车'}
+		]
+		 */
+		for ( var index in xData) {
+			var obj = {
+				value : yData[index],
+				name : xData[index]
+			};
+			//放进pieData
+			pieData.push(obj);
+
+		}
+
+		//初始化左表
+		initLeft();
+		//初始化右表
+		initRight();
+	});
+	/**
+	 *为刷新按钮绑定点击时间
+	 *动态获取新的状态数据，并更新
+	 */
+	function updateData() {
+		//重新
+		var statusUrl = "https://gbfs.citibikenyc.com/gbfs/en/station_status.json";
+		$.get(statusUrl, function(statusData) {
+			console.log(statusData);
+			var timeStamp = statusData.last_updated * 1000;
+			var date = timeStampToDate(timeStamp);
+			$("#dateId").text("数据时间：" + date);			//获取station数组长度
+			var count = statusData.data.stations.length;
+			$("#countId").text("站点总数：" + count);
+			var yData_1 = 0;//无车的站点
+			var yData_2 = 0;//可用车小于等于4的站点
+			var yData_3 = 0;//可用车小于50%的站点
+			var yData_4 = 0;//可用车大于50%的站点
+			var yData_5 = 0;//没有可用桩，只有车的站点
+			//遍历stations数组
+			var statusStation = statusData.data.stations;
+			for ( var index in statusStation) {
+				//获取当前元素-->一个站点数据
+				var statu = statusStation[index];
+				//获取nba
+				var nba = statu.num_bikes_available;
+				//获取nda
+				var nda = statu.num_docks_available;
+				//console.log("nba:"+nba+" nda:"+nda);
+				//进行判断该对yData的哪个数据进行+1
+				var abi = nba / (nba + nda);
+				if (nba + nda == 0 || nba == 0) {
+					yData_1++;
+					//这里没有return所以需要用else if 否则会执行完一个if又进下一个if
+					//也可以五个if里面写break
+				} else if (nba < 5) {
+					yData_2++;
+				} else if (abi <= 0.5) {
+					yData_3++;
+				} else if (abi < 1) {
+					yData_4++;
+				} else if (nda == 0) {
+					yData_5++;
+				}
+			}
+			//将5个局部变量添加到yData中
+			yData = [ yData_1, yData_2, yData_3, yData_4, yData_5 ];
+			console.log(yData);
+			pieData=[];//置空操作，避免bug
+			for ( var index in xData) {
+				var obj = {
+					value : yData[index],
+					name : xData[index]
+				};
+				//放进pieData
+				pieData.push(obj);
+
+			}
+
+			updateLeft(yData);
+			updateRight(pieData);
+		});
+	}
+
+	/**
+	 * 将时间戳转变成时间字符串的方法
+	 * timeStamp 13位的时间戳数据
+	 * 返回数据格式 yyyy-MM-dd HH:mm:ss
+	 */
+	function timeStampToDate(timeStamp) {
+		var d = new Date(timeStamp); //根据时间戳生成的时间对象
+		var date = (d.getFullYear()) + "-" + (d.getMonth() + 1) + "-"
+				+ (d.getDate()) + " " + (d.getHours()) + ":" + (d.getMinutes())
+				+ ":" + (d.getSeconds());
+		return date;
+	}
+	
+	function updateLeft(yData){
+		var option = {
+				
+				series : [ {
+					name : '站点数量',
+					type : 'bar',
+					data : yData
+				} ]
+		};
+		leftChart.setOption(option);
+		
+	}
+	
+	function updateRight(pieData){
+		var option = {
+				series : [ {
+					name : '站点类型',
+					type : 'pie',
+					radius : '55%',
+					center : [ '50%', '50%' ],// 水平位置，垂直位置
+					data : pieData.sort(function(a, b) {
+						return a.value - b.value;
+					}),
+					roseType : 'radius',
+					label : {
+						color : 'rgba(255, 255, 255, 0.3)'
+					},
+					labelLine : {
+						lineStyle : {
+							color : 'rgba(255, 255, 255, 0.3)'
+						},
+						smooth : 0.2,
+						length : 10,
+						length2 : 20
+					},
+					itemStyle : {
+						color : '#c23531',
+						shadowBlur : 200,
+						shadowColor : 'rgba(0, 0, 0, 0.5)'
+					},
+
+					animationType : 'scale',
+					animationEasing : 'elasticOut',
+					animationDelay : function(idx) {
+						return Math.random() * 200;
+					}
+				} ]
+			};
+		rightChart.setOption(option);
+	}
+
+	function initLeft() {
+	    leftChart = echarts.init(document.getElementById('left_container'));
+
+		// 指定图表的配置项和数据 var opts={}
+		var option = {
+			title : {
+				text : '不同类型站点数量',
+				left : 'right'
+			},
+			tooltip : {},
+			legend : {
+				data : [ '站点数量' ]
+			},
+			xAxis : {
+				data : xData
+			},
+			yAxis : {},
+			series : [ {
+				name : '站点数量',
+				type : 'bar',
+				data : yData
+			} ]
+		};
+
+		// 使用刚指定的配置项和数据显示图表。
+		leftChart.setOption(option);
+	}
+
+	function initRight() {
+		 rightChart = echarts.init(document
+				.getElementById('right_container'));
+
+		var option = {
+			// 饼图的背景颜色
+			backgroundColor : '#2c343c',
+
+			title : {
+				text : '不同类型站点占比',
+				textStyle : {
+					color : '#ccc'
+				}
+			},
+
+			tooltip : {
+				trigger : 'item',
+				formatter : '{a} <br/>{b} : {c} ({d}%)'
+			},
+			// 影响饼图不同区域的颜色深浅
+			visualMap : {
+				show : false,
+				min : 80,
+				max : 500,
+				inRange : {
+					colorLightness : [ 0, 1 ]
+				}
+			},
+			series : [ {
+				name : '站点类型',
+				type : 'pie',
+				radius : '55%',
+				center : [ '50%', '50%' ],// 水平位置，垂直位置
+				data : pieData.sort(function(a, b) {
+					return a.value - b.value;
+				}),
+				roseType : 'radius',
+				label : {
+					color : 'rgba(255, 255, 255, 0.3)'
+				},
+				labelLine : {
+					lineStyle : {
+						color : 'rgba(255, 255, 255, 0.3)'
+					},
+					smooth : 0.2,
+					length : 10,
+					length2 : 20
+				},
+				itemStyle : {
+					color : '#c23531',
+					shadowBlur : 200,
+					shadowColor : 'rgba(0, 0, 0, 0.5)'
+				},
+                //动画效果
+				animationType : 'scale',
+				animationEasing : 'elasticOut',
+				animationDelay : function(idx) {
+					return Math.random() * 200;
+				}
+			} ]
+		};
+
+		// 使用刚指定的配置项和数据显示图表。
+		rightChart.setOption(option);
+	}
+</script>
+
+
+
+
+
+
+</html>

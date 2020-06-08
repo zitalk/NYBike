@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <!-- 引入 echarts.js -->
+    <script src="js/echarts.min.js"></script>
+    <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+    <style type="text/css">
+    div {
+	border: 1px solid black;
+}
+    </style>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="left" style="width: 900px;height:400px;">
+    <script type="text/javascript">
+    
+        //声明服务器数据的url
+        var url = "http://localhost:8080/nybike/tripDayCount2";
+        
+        //发送AJAX请求，获取数据
+        $.get(url,function(result){
+        	initLeft(result);
+        	
+        	
+        });
+        function initLeft(result){
+        	// x轴数据 日期
+        	var xData=result.xData;
+        	// y轴数据   骑行总数
+        	var yData1=result.yData1;
+        	var yData2=result.yData2;
+        	
+            var myChart = echarts.init(document.getElementById('left'));
+
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '数据对比'
+                },
+                tooltip: {},
+                legend: {
+                    data:['19年','20年']
+                },
+                xAxis: {
+                    data: xData
+                },
+                yAxis: {},
+                series: [{
+                    name: '19年',
+                    type: 'bar',
+                    data: yData1
+                },{
+                	name: '20年',
+                    type: 'bar',
+                    data: yData2
+                }]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+       
+    	
+    </script>
+</body>
+</html>
