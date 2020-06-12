@@ -31,12 +31,12 @@ public class TripDayCountServlet extends HttpServlet{
 			//将vo对象转换成JSON字符串,
 			String jsonStr = JSON.toJSONString(vo);
 			//通知浏览器，本次返回的数据格式为JSON格式
-			resp.setContentType("application/json;cahrset=utf-8");
+			resp.setContentType("application/json;charset=utf-8");
 			//将JSON字符串添加到resp对象中
 			resp.getWriter().write(jsonStr);
 			
 		}else {
-			resp.setContentType("application/json;cahrset=utf-8");
+			resp.setContentType("application/json;charset=utf-8");
 			//将JSON字符串添加到resp对象中
 			resp.getWriter().write("{}");
 		}

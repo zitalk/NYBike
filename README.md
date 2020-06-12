@@ -37,4 +37,4 @@
 
 ## JAR包
 
-全部使用Maven依赖，在pom.xml查看依赖配置
+全部使用Maven依赖，在pom.xml查看依赖配置u

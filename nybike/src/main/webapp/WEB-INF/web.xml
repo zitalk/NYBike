@@ -9,16 +9,41 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
-  <!-- 配置Servlet的名称和所在位置 -->
   <servlet>
     <servlet-name>TripDayCountServlet</servlet-name>
     <servlet-class>cn.tedu.nybike.web.TripDayCountServlet</servlet-class>
   </servlet>
-     
-  <!-- 配置Servlet映射的路径 -->
   <servlet-mapping>
     <servlet-name>TripDayCountServlet</servlet-name>
     <url-pattern>/tripDayCount</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+    <servlet-name>DateInfoServlet</servlet-name>
+    <servlet-class>cn.tedu.nybike.web.DateInfoServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DateInfoServlet</servlet-name>
+    <url-pattern>/dateInfo</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>DateInfo2Servlet</servlet-name>
+    <servlet-class>cn.tedu.nybike.web.DateInfo2Servlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DateInfo2Servlet</servlet-name>
+    <url-pattern>/dateInfo2</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <description></description>
+    <display-name>TripDayHourCountServlet</display-name>
+    <servlet-name>TripDayHourCountServlet</servlet-name>
+    <servlet-class>cn.tedu.nybike.web.TripDayHourCountServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>TripDayHourCountServlet</servlet-name>
+    <url-pattern>/tripDayHourCount</url-pattern>
+  </servlet-mapping>
 </web-app>

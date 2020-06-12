@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>小时骑行数量</title>
+<style type="text/css">
+	div{
+		border: 1px solid gray;
+	}
+	#part1{
+		height: 150px;
+	}
+	#part2{
+		height:300px;
+		background-color: orange;
+	}
+	#part1 .title{
+		font-size: 20px;
+		font-weight: bolder;
+	}
+	#p1_d1{
+		height: 25px;
+		background-color: red;
+	}
+	#p1_d2{
+		height: 96px;
+		overflow: auto;
+		background-color: #C38E8A;
+	}
+	#p1_d3{
+		height: 23px;
+		background-color: yellow;
+	}
+	.p1_d2_t1_td1{
+		width:90px;
+		border: 1px solid gray;
+	}
+	.p1_d2_t1_td2{
+		border: 1px solid gray;
+	}
+</style>
+</head>
+<body>
+	<div id="part1">
+		<div id="p1_d1">
+			<span class="title">日期列表</span>
+		</div >
+		<div id="p1_d2">
+			<table id="p1_d2_t1"></table>
+		</div>
+		<div id="p1_d3">
+		<button id="btn_search">查询</button>
+		</div>
+	</div>
+	<div id="part2"></div>
+</body>
+<script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+<script src="js/echarts.min.js"></script>
+<script type="text/javascript">
+
+    //为查询按钮添加点击事件
+    $("#btn_search").click(function(){
+    	//获取所有被选中的checkbox,并遍历
+    	var array=[];//用以保存选中的日期信息
+    	//标签选择器  拿回来的是数组.each用来遍历
+    	$("input[type='checkbox']").each(function(){
+    		//如果当前checkbox有一个属性是’checked‘的值为true
+    		//this在js中表示当前方法的调用者而在Java中表示的是当前对象
+    		//$(this)表示将js对象转变为jquery对象，以便使用prop方法
+    		//prop方法可以读取一个dom的指定属性值，或者为该属性赋值
+    		//读取      var v1 = xxx.prop("属性名")
+    		//赋值      xxx.prop("属性名",值)
+    		if($(this).prop("checked")){//说明被选中
+    			//获取该checkbox的value值 并放入array数组
+    			array.push($(this).val());
+    		}
+    	});
+    	console.log(array.toString());
+    	//验证是否至少勾选了一个checkbox
+    	if(array.length==0){
+    		alert("请至少勾选一个日期");
+    		return;
+    	}
+    	//发送ajax请求，请求对应的日期小时数据
+    	var url="tripDayHourCount";
+    	var params={
+    			"dateArray":array.toString()
+    	}
+    	$.get(url,params,function(result){
+    	    //解析相应数据，基于ECharts的API，在part2生成图表
+    		// x轴数据 日期
+        	var xData=result.xData;
+    	    var yDataMap = result.yDataMap;
+    	    //y轴的series的数组
+        	var mySeries = [];
+    	    //图例中保存数据集名称的数组
+        	var legendData=[];
+        	//循环生成mySerries的内容
+        	for(var key in yDataMap){
+        		//向图例中保存数据集名称
+        		legendData.push(key);
+        		//生成一项y轴的series
+        		var obj={
+        				name : key,
+        				type : 'line',
+        				smooth : true,
+        				data :yDataMap[key]
+        		};
+        		mySeries.push(obj);
+        	}
+        	
+            var myChart = echarts.init(document.getElementById('part2'));
+
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '日每小时骑行总次数'
+                },
+                tooltip: {},
+                legend: {
+                    data: legendData
+                },
+                xAxis: {
+                    data: xData
+                },
+                yAxis: {},
+                series:mySeries
+
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+    		
+    	});
+    });
+	// 请求日期数据
+	var url="dateInfo"; // 相对路径
+	$.get(url,function(result){
+		var dateInfoMap=result.dateInfoMap;
+		// key是dateInfoMap中每一个属性的名称
+		// key -> 2020年
+		for(var key in dateInfoMap){
+			// dateArray -> ["0401(一)","0402(二)..."]
+			var dateArray=dateInfoMap[key];
+			//console.log(dateArray);
+			// 日期checkbox表格的模板
+			var tr="<tr>"+
+					"<td class='p1_d2_t1_td1'>[date_year]</td>"+
+					"<td class='p1_d2_t1_td2'>[date_chk]</td>"+
+					"</tr>";
+			// 替换年份数据
+			tr=tr.replace("[date_year]",key);
+			// 循环生成 date_chk的内容
+			var dateChk="";
+			for(var index in dateArray){
+				//将2020年中的2020提取出来
+				var year = key.substring(0,4);
+				//0401(周三)  ->  04
+				var month = dateArray[index].substring(0,2);
+				//0401(周三)  ->  01
+				var day = dateArray[index].substring(2,4);
+				var dateStr = year+"-"+month+"-"+day;
+				dateChk+="<input type='checkbox' value='"+dateStr+"'>"+dateArray[index]+" ";
+			}
+			// 替换日期数据
+			tr=tr.replace("[date_chk]",dateChk);
+			// 将tr添加到table中
+			$("#p1_d2_t1").append(tr);
+		}
+	});
+</script>
+</html>

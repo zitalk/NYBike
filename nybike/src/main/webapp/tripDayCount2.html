@@ -27,38 +27,59 @@
         	
         });
         function initLeft(result){
-        	// x轴数据 日期
+        	// x轴数据：日期
         	var xData=result.xData;
-        	// y轴数据   骑行总数
+        	// y轴第一组数据：19年每日骑行总数
         	var yData1=result.yData1;
+        	// y轴第二组数据：20年每日骑行总数
         	var yData2=result.yData2;
         	
             var myChart = echarts.init(document.getElementById('left'));
-
             // 指定图表的配置项和数据
             var option = {
                 title: {
-                    text: '数据对比'
+                    text: '19年4月 VS 20年4月'
                 },
                 tooltip: {},
                 legend: {
-                    data:['19年','20年']
+                    data:['19年4月','20年4月']
                 },
                 xAxis: {
                     data: xData
                 },
                 yAxis: {},
                 series: [{
-                    name: '19年',
+                    name: '19年4月',
                     type: 'bar',
-                    data: yData1
+                    data: yData1,
+                    markPoint: {
+                        data: [
+                            {type: 'max', name: '最大值'},
+                            {type: 'min', name: '最小值'}
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ]
+                    }
                 },{
-                	name: '20年',
+                    name: '20年4月',
                     type: 'bar',
-                    data: yData2
+                    data: yData2,
+                    markPoint: {
+                        data: [
+                            {type: 'max', name: '最大值'},
+                            {type: 'min', name: '最小值'}
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ]
+                    }
                 }]
             };
-
             // 使用刚指定的配置项和数据显示图表。
             myChart.setOption(option);
         }
